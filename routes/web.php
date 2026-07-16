@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Academic\AcademicSetupController;
 use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -12,6 +13,26 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->except(['destroy'])
         ->middleware('permission:users.view')
         ->names('admin.users');
+
+    Route::prefix('academic')
+        ->name('academic.')
+        ->middleware('permission:academic_setup.view')
+        ->group(function () {
+            foreach ([
+                'school-years' => 'school-years',
+                'terms' => 'terms',
+                'grade-levels' => 'grade-levels',
+                'sections' => 'sections',
+                'subjects' => 'subjects',
+                'classrooms' => 'classrooms',
+            ] as $uri => $name) {
+                Route::get($uri, [AcademicSetupController::class, 'index'])->name($name.'.index')->defaults('resource', $uri);
+                Route::get($uri.'/create', [AcademicSetupController::class, 'create'])->name($name.'.create')->defaults('resource', $uri);
+                Route::post($uri, [AcademicSetupController::class, 'store'])->name($name.'.store')->defaults('resource', $uri);
+                Route::get($uri.'/{record}/edit', [AcademicSetupController::class, 'edit'])->name($name.'.edit')->defaults('resource', $uri);
+                Route::put($uri.'/{record}', [AcademicSetupController::class, 'update'])->name($name.'.update')->defaults('resource', $uri);
+            }
+        });
 });
 
 require __DIR__.'/settings.php';

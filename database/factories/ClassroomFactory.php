@@ -1,0 +1,28 @@
+<?php
+
+namespace Database\Factories;
+
+use App\Models\Classroom;
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+/**
+ * @extends Factory<Classroom>
+ */
+class ClassroomFactory extends Factory
+{
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
+    public function definition(): array
+    {
+        return [
+            'name' => fake()->unique()->bothify('Room ###'),
+            'code' => fake()->unique()->bothify('RM-###'),
+            'capacity' => fake()->numberBetween(25, 45),
+            'location' => fake()->randomElement(['Main Building', 'Annex', 'North Wing']),
+            'status' => Classroom::STATUS_ACTIVE,
+        ];
+    }
+}
