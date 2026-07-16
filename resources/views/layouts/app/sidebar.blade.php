@@ -22,6 +22,29 @@
                         </flux:sidebar.item>
                     @endcan
                 </flux:sidebar.group>
+
+                @can('academic_setup.view')
+                    <flux:sidebar.group :heading="__('Academic Setup')" class="grid">
+                        <flux:sidebar.item icon="layout-grid" :href="route('academic.school-years.index')" :current="request()->routeIs('academic.school-years.*')" wire:navigate>
+                            {{ __('School Years') }}
+                        </flux:sidebar.item>
+                        <flux:sidebar.item icon="layout-grid" :href="route('academic.terms.index')" :current="request()->routeIs('academic.terms.*')" wire:navigate>
+                            {{ __('Terms') }}
+                        </flux:sidebar.item>
+                        <flux:sidebar.item icon="layout-grid" :href="route('academic.grade-levels.index')" :current="request()->routeIs('academic.grade-levels.*')" wire:navigate>
+                            {{ __('Grade Levels') }}
+                        </flux:sidebar.item>
+                        <flux:sidebar.item icon="layout-grid" :href="route('academic.sections.index')" :current="request()->routeIs('academic.sections.*')" wire:navigate>
+                            {{ __('Sections') }}
+                        </flux:sidebar.item>
+                        <flux:sidebar.item icon="book-open-text" :href="route('academic.subjects.index')" :current="request()->routeIs('academic.subjects.*')" wire:navigate>
+                            {{ __('Subjects') }}
+                        </flux:sidebar.item>
+                        <flux:sidebar.item icon="layout-grid" :href="route('academic.classrooms.index')" :current="request()->routeIs('academic.classrooms.*')" wire:navigate>
+                            {{ __('Classrooms') }}
+                        </flux:sidebar.item>
+                    </flux:sidebar.group>
+                @endcan
             </flux:sidebar.nav>
 
             <flux:spacer />
