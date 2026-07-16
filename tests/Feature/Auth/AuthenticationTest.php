@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Models\LoginLog;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Fortify\Features;
@@ -32,6 +33,28 @@ class AuthenticationTest extends TestCase
             ->assertRedirect(route('dashboard', absolute: false));
 
         $this->assertAuthenticated();
+        $this->assertDatabaseHas(LoginLog::class, [
+            'user_id' => $user->id,
+        ]);
+    }
+
+    public function test_inactive_users_can_not_authenticate(): void
+    {
+        $user = User::factory()->create([
+            'status' => User::STATUS_INACTIVE,
+        ]);
+
+        $response = $this->post(route('login.store'), [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
+        $response->assertSessionHasErrorsIn('email');
+
+        $this->assertGuest();
+        $this->assertDatabaseMissing(LoginLog::class, [
+            'user_id' => $user->id,
+        ]);
     }
 
     public function test_users_can_not_authenticate_with_invalid_password(): void
