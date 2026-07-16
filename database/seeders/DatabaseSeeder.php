@@ -4,8 +4,10 @@ namespace Database\Seeders;
 
 use App\Models\Classroom;
 use App\Models\GradeLevel;
+use App\Models\Guardian;
 use App\Models\SchoolYear;
 use App\Models\Section;
+use App\Models\Student;
 use App\Models\Subject;
 use App\Models\Term;
 use App\Models\User;
@@ -37,6 +39,14 @@ class DatabaseSeeder extends Seeder
             'academic_setup.create',
             'academic_setup.update',
             'academic_setup.deactivate',
+            'students.view',
+            'students.create',
+            'students.update',
+            'students.deactivate',
+            'guardians.view',
+            'guardians.create',
+            'guardians.update',
+            'guardians.deactivate',
         ])->mapWithKeys(fn (string $permission) => [
             $permission => Permission::firstOrCreate([
                 'name' => $permission,
@@ -59,6 +69,14 @@ class DatabaseSeeder extends Seeder
             $permissions['academic_setup.create'],
             $permissions['academic_setup.update'],
             $permissions['academic_setup.deactivate'],
+            $permissions['students.view'],
+            $permissions['students.create'],
+            $permissions['students.update'],
+            $permissions['students.deactivate'],
+            $permissions['guardians.view'],
+            $permissions['guardians.create'],
+            $permissions['guardians.update'],
+            $permissions['guardians.deactivate'],
         ]);
 
         $this->seedUser(
@@ -90,6 +108,7 @@ class DatabaseSeeder extends Seeder
         );
 
         $this->seedAcademicSetup();
+        $this->seedStudentGuardianRecords();
     }
 
     private function seedUser(string $name, string $email, string $jobTitle, Role $role): void
@@ -189,5 +208,50 @@ class DatabaseSeeder extends Seeder
                 'status' => Classroom::STATUS_ACTIVE,
             ],
         );
+    }
+
+    private function seedStudentGuardianRecords(): void
+    {
+        $gradeLevel = GradeLevel::where('code', 'G1')->first();
+        $section = Section::where('code', 'G1-A')->first();
+
+        $student = Student::firstOrCreate(
+            ['student_number' => 'STU-0001'],
+            [
+                'first_name' => 'Alex',
+                'last_name' => 'Santos',
+                'preferred_name' => 'Alex',
+                'birthdate' => '2018-08-15',
+                'gender' => 'Male',
+                'email' => 'alex.santos@student.academify.local',
+                'phone' => null,
+                'address' => 'Main Building Area',
+                'grade_level_id' => $gradeLevel?->id,
+                'section_id' => $section?->id,
+                'status' => Student::STATUS_ACTIVE,
+            ],
+        );
+
+        $guardian = Guardian::firstOrCreate(
+            ['email' => 'maria.santos@guardian.academify.local'],
+            [
+                'first_name' => 'Maria',
+                'last_name' => 'Santos',
+                'phone' => '555-0101',
+                'alternate_phone' => null,
+                'address' => 'Main Building Area',
+                'occupation' => 'Parent',
+                'status' => Guardian::STATUS_ACTIVE,
+            ],
+        );
+
+        $student->guardians()->syncWithoutDetaching([
+            $guardian->id => [
+                'relationship' => 'Mother',
+                'is_primary_contact' => true,
+                'can_pick_up' => true,
+                'receives_notifications' => true,
+            ],
+        ]);
     }
 }
