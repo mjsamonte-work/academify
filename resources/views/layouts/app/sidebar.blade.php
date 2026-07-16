@@ -45,6 +45,21 @@
                         </flux:sidebar.item>
                     </flux:sidebar.group>
                 @endcan
+
+                @if(auth()->user()->can('students.view') || auth()->user()->can('guardians.view'))
+                    <flux:sidebar.group :heading="__('Records')" class="grid">
+                        @can('students.view')
+                            <flux:sidebar.item icon="users" :href="route('records.students.index')" :current="request()->routeIs('records.students.*')" wire:navigate>
+                                {{ __('Students') }}
+                            </flux:sidebar.item>
+                        @endcan
+                        @can('guardians.view')
+                            <flux:sidebar.item icon="users" :href="route('records.guardians.index')" :current="request()->routeIs('records.guardians.*')" wire:navigate>
+                                {{ __('Guardians') }}
+                            </flux:sidebar.item>
+                        @endcan
+                    </flux:sidebar.group>
+                @endif
             </flux:sidebar.nav>
 
             <flux:spacer />

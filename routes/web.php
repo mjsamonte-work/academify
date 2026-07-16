@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\Academic\AcademicSetupController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Records\GuardianController;
+use App\Http\Controllers\Records\StudentController;
+use App\Http\Controllers\Records\StudentGuardianController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('home');
@@ -33,6 +36,26 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::put($uri.'/{record}', [AcademicSetupController::class, 'update'])->name($name.'.update')->defaults('resource', $uri);
             }
         });
+
+    Route::prefix('records')->name('records.')->group(function () {
+        Route::resource('students', StudentController::class)
+            ->except(['destroy'])
+            ->middleware('permission:students.view');
+
+        Route::post('students/{student}/guardians', [StudentGuardianController::class, 'store'])
+            ->middleware('permission:students.update')
+            ->name('students.guardians.store');
+        Route::put('students/{student}/guardians/{guardian}', [StudentGuardianController::class, 'update'])
+            ->middleware('permission:students.update')
+            ->name('students.guardians.update');
+        Route::delete('students/{student}/guardians/{guardian}', [StudentGuardianController::class, 'destroy'])
+            ->middleware('permission:students.update')
+            ->name('students.guardians.destroy');
+
+        Route::resource('guardians', GuardianController::class)
+            ->except(['destroy'])
+            ->middleware('permission:guardians.view');
+    });
 });
 
 require __DIR__.'/settings.php';
