@@ -46,7 +46,7 @@
                     </flux:sidebar.group>
                 @endcan
 
-                @if(auth()->user()->can('students.view') || auth()->user()->can('guardians.view'))
+                @if(auth()->user()->can('students.view') || auth()->user()->can('guardians.view') || auth()->user()->can('teachers.view'))
                     <flux:sidebar.group :heading="__('Records')" class="grid">
                         @can('students.view')
                             <flux:sidebar.item icon="users" :href="route('records.students.index')" :current="request()->routeIs('records.students.*')" wire:navigate>
@@ -58,8 +58,21 @@
                                 {{ __('Guardians') }}
                             </flux:sidebar.item>
                         @endcan
+                        @can('teachers.view')
+                            <flux:sidebar.item icon="users" :href="route('records.teachers.index')" :current="request()->routeIs('records.teachers.*')" wire:navigate>
+                                {{ __('Teachers') }}
+                            </flux:sidebar.item>
+                        @endcan
                     </flux:sidebar.group>
                 @endif
+
+                @can('teachers.view_own')
+                    <flux:sidebar.group :heading="__('Teacher')" class="grid">
+                        <flux:sidebar.item icon="user" :href="route('teacher.profile')" :current="request()->routeIs('teacher.profile')" wire:navigate>
+                            {{ __('My Teacher Profile') }}
+                        </flux:sidebar.item>
+                    </flux:sidebar.group>
+                @endcan
             </flux:sidebar.nav>
 
             <flux:spacer />
