@@ -5,6 +5,8 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Records\GuardianController;
 use App\Http\Controllers\Records\StudentController;
 use App\Http\Controllers\Records\StudentGuardianController;
+use App\Http\Controllers\Records\TeacherController;
+use App\Http\Controllers\Teacher\ProfileController as TeacherProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('home');
@@ -55,7 +57,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('guardians', GuardianController::class)
             ->except(['destroy'])
             ->middleware('permission:guardians.view');
+
+        Route::resource('teachers', TeacherController::class)
+            ->except(['destroy'])
+            ->middleware('permission:teachers.view');
     });
+
+    Route::get('teacher/profile', [TeacherProfileController::class, 'show'])
+        ->middleware('permission:teachers.view_own')
+        ->name('teacher.profile');
 });
 
 require __DIR__.'/settings.php';

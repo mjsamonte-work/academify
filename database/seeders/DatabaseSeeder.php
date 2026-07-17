@@ -9,6 +9,7 @@ use App\Models\SchoolYear;
 use App\Models\Section;
 use App\Models\Student;
 use App\Models\Subject;
+use App\Models\Teacher as TeacherProfile;
 use App\Models\Term;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -47,6 +48,12 @@ class DatabaseSeeder extends Seeder
             'guardians.create',
             'guardians.update',
             'guardians.deactivate',
+            'teachers.view',
+            'teachers.create',
+            'teachers.update',
+            'teachers.deactivate',
+            'teachers.assign_subjects',
+            'teachers.view_own',
         ])->mapWithKeys(fn (string $permission) => [
             $permission => Permission::firstOrCreate([
                 'name' => $permission,
@@ -59,8 +66,8 @@ class DatabaseSeeder extends Seeder
         $student = Role::firstOrCreate(['name' => 'Student', 'guard_name' => 'web']);
         $guardian = Role::firstOrCreate(['name' => 'Parent/Guardian', 'guard_name' => 'web']);
 
-        $administrator->syncPermissions($permissions->values());
-        $teacher->syncPermissions([$permissions['dashboard.view']]);
+        $administrator->syncPermissions($permissions->except('teachers.view_own')->values());
+        $teacher->syncPermissions([$permissions['dashboard.view'], $permissions['teachers.view_own']]);
         $student->syncPermissions([$permissions['dashboard.view']]);
         $guardian->syncPermissions([$permissions['dashboard.view']]);
 
@@ -77,6 +84,11 @@ class DatabaseSeeder extends Seeder
             $permissions['guardians.create'],
             $permissions['guardians.update'],
             $permissions['guardians.deactivate'],
+            $permissions['teachers.view'],
+            $permissions['teachers.create'],
+            $permissions['teachers.update'],
+            $permissions['teachers.deactivate'],
+            $permissions['teachers.assign_subjects'],
         ]);
 
         $this->seedUser(
@@ -109,6 +121,7 @@ class DatabaseSeeder extends Seeder
 
         $this->seedAcademicSetup();
         $this->seedStudentGuardianRecords();
+        $this->seedTeacherRecords();
     }
 
     private function seedUser(string $name, string $email, string $jobTitle, Role $role): void
@@ -253,5 +266,39 @@ class DatabaseSeeder extends Seeder
                 'receives_notifications' => true,
             ],
         ]);
+    }
+
+    private function seedTeacherRecords(): void
+    {
+        $teacherUser = User::where('email', 'teacher@academify.local')->first();
+        $mathematics = Subject::where('code', 'MATH')->first();
+        $science = Subject::where('code', 'SCI')->first();
+
+        $teacher = TeacherProfile::firstOrCreate(
+            ['employee_number' => 'TCH-0001'],
+            [
+                'user_id' => $teacherUser?->id,
+                'first_name' => 'Taylor',
+                'last_name' => 'Teacher',
+                'preferred_name' => 'Taylor',
+                'email' => 'teacher@academify.local',
+                'phone' => '555-0301',
+                'address' => 'Academify Faculty Office',
+                'job_title' => 'Teacher',
+                'department' => 'Elementary',
+                'employment_type' => TeacherProfile::EMPLOYMENT_FULL_TIME,
+                'hired_at' => '2026-06-01',
+                'status' => TeacherProfile::STATUS_ACTIVE,
+            ],
+        );
+
+        $teacher->update([
+            'user_id' => $teacherUser?->id,
+            'status' => TeacherProfile::STATUS_ACTIVE,
+        ]);
+
+        $teacher->subjects()->syncWithoutDetaching(
+            collect([$mathematics?->id, $science?->id])->filter()->all(),
+        );
     }
 }
