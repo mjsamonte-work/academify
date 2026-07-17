@@ -90,6 +90,9 @@ class DatabaseSeeder extends Seeder
             'announcements.publish',
             'announcements.archive',
             'announcements.view_own',
+            'reports.view',
+            'reports.export_pdf',
+            'reports.export_excel',
         ])->mapWithKeys(fn (string $permission) => [
             $permission => Permission::firstOrCreate([
                 'name' => $permission,
@@ -161,6 +164,9 @@ class DatabaseSeeder extends Seeder
             $permissions['announcements.update'],
             $permissions['announcements.publish'],
             $permissions['announcements.archive'],
+            $permissions['reports.view'],
+            $permissions['reports.export_pdf'],
+            $permissions['reports.export_excel'],
         ]);
 
         $this->seedUser(
