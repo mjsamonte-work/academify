@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 
 /**
@@ -82,6 +84,24 @@ class Student extends Model
         return $this->belongsToMany(Guardian::class)
             ->withPivot(['relationship', 'is_primary_contact', 'can_pick_up', 'receives_notifications'])
             ->withTimestamps();
+    }
+
+    /**
+     * @return HasMany<Enrollment, $this>
+     */
+    public function enrollments(): HasMany
+    {
+        return $this->hasMany(Enrollment::class);
+    }
+
+    /**
+     * @return HasOne<Enrollment, $this>
+     */
+    public function currentEnrollment(): HasOne
+    {
+        return $this->hasOne(Enrollment::class)
+            ->where('status', Enrollment::STATUS_ENROLLED)
+            ->latestOfMany();
     }
 
     /**

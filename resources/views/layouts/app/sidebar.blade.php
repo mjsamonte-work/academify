@@ -73,6 +73,14 @@
                         </flux:sidebar.item>
                     </flux:sidebar.group>
                 @endcan
+
+                @can('enrollments.view')
+                    <flux:sidebar.group :heading="__('Enrollment')" class="grid">
+                        <flux:sidebar.item icon="layout-grid" :href="route('enrollment.enrollments.index')" :current="request()->routeIs('enrollment.enrollments.*')" wire:navigate>
+                            {{ __('Enrollments') }}
+                        </flux:sidebar.item>
+                    </flux:sidebar.group>
+                @endcan
             </flux:sidebar.nav>
 
             <flux:spacer />

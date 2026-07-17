@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Classroom;
+use App\Models\Enrollment;
 use App\Models\GradeLevel;
 use App\Models\Guardian;
 use App\Models\SchoolYear;
@@ -54,6 +55,11 @@ class DatabaseSeeder extends Seeder
             'teachers.deactivate',
             'teachers.assign_subjects',
             'teachers.view_own',
+            'enrollments.view',
+            'enrollments.create',
+            'enrollments.update',
+            'enrollments.withdraw',
+            'enrollments.complete',
         ])->mapWithKeys(fn (string $permission) => [
             $permission => Permission::firstOrCreate([
                 'name' => $permission,
@@ -89,6 +95,11 @@ class DatabaseSeeder extends Seeder
             $permissions['teachers.update'],
             $permissions['teachers.deactivate'],
             $permissions['teachers.assign_subjects'],
+            $permissions['enrollments.view'],
+            $permissions['enrollments.create'],
+            $permissions['enrollments.update'],
+            $permissions['enrollments.withdraw'],
+            $permissions['enrollments.complete'],
         ]);
 
         $this->seedUser(
@@ -122,6 +133,7 @@ class DatabaseSeeder extends Seeder
         $this->seedAcademicSetup();
         $this->seedStudentGuardianRecords();
         $this->seedTeacherRecords();
+        $this->seedEnrollmentRecords();
     }
 
     private function seedUser(string $name, string $email, string $jobTitle, Role $role): void
@@ -299,6 +311,32 @@ class DatabaseSeeder extends Seeder
 
         $teacher->subjects()->syncWithoutDetaching(
             collect([$mathematics?->id, $science?->id])->filter()->all(),
+        );
+    }
+
+    private function seedEnrollmentRecords(): void
+    {
+        $student = Student::where('student_number', 'STU-0001')->first();
+        $schoolYear = SchoolYear::where('name', '2026-2027')->first();
+        $gradeLevel = GradeLevel::where('code', 'G1')->first();
+        $section = Section::where('code', 'G1-A')->first();
+
+        if (! $student || ! $schoolYear || ! $gradeLevel || ! $section) {
+            return;
+        }
+
+        Enrollment::firstOrCreate(
+            [
+                'student_id' => $student->id,
+                'school_year_id' => $schoolYear->id,
+                'status' => Enrollment::STATUS_ENROLLED,
+            ],
+            [
+                'grade_level_id' => $gradeLevel->id,
+                'section_id' => $section->id,
+                'enrolled_at' => '2026-06-01',
+                'notes' => 'Seeded active enrollment for local development.',
+            ],
         );
     }
 }
