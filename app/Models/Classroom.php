@@ -7,6 +7,7 @@ use Database\Factories\ClassroomFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property int $id
@@ -25,6 +26,14 @@ class Classroom extends Model
     public const STATUS_ACTIVE = HasActiveStatus::STATUS_ACTIVE;
 
     public const STATUS_INACTIVE = HasActiveStatus::STATUS_INACTIVE;
+
+    /**
+     * @return HasMany<ClassSchedule, $this>
+     */
+    public function classSchedules(): HasMany
+    {
+        return $this->hasMany(ClassSchedule::class);
+    }
 
     /**
      * @return array<string, string>

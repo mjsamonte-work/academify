@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Classroom;
+use App\Models\ClassSchedule;
 use App\Models\Enrollment;
 use App\Models\GradeLevel;
 use App\Models\Guardian;
@@ -60,6 +61,11 @@ class DatabaseSeeder extends Seeder
             'enrollments.update',
             'enrollments.withdraw',
             'enrollments.complete',
+            'schedules.view',
+            'schedules.create',
+            'schedules.update',
+            'schedules.deactivate',
+            'schedules.view_own',
         ])->mapWithKeys(fn (string $permission) => [
             $permission => Permission::firstOrCreate([
                 'name' => $permission,
@@ -72,8 +78,12 @@ class DatabaseSeeder extends Seeder
         $student = Role::firstOrCreate(['name' => 'Student', 'guard_name' => 'web']);
         $guardian = Role::firstOrCreate(['name' => 'Parent/Guardian', 'guard_name' => 'web']);
 
-        $administrator->syncPermissions($permissions->except('teachers.view_own')->values());
-        $teacher->syncPermissions([$permissions['dashboard.view'], $permissions['teachers.view_own']]);
+        $administrator->syncPermissions($permissions->except(['teachers.view_own', 'schedules.view_own'])->values());
+        $teacher->syncPermissions([
+            $permissions['dashboard.view'],
+            $permissions['teachers.view_own'],
+            $permissions['schedules.view_own'],
+        ]);
         $student->syncPermissions([$permissions['dashboard.view']]);
         $guardian->syncPermissions([$permissions['dashboard.view']]);
 
@@ -100,6 +110,10 @@ class DatabaseSeeder extends Seeder
             $permissions['enrollments.update'],
             $permissions['enrollments.withdraw'],
             $permissions['enrollments.complete'],
+            $permissions['schedules.view'],
+            $permissions['schedules.create'],
+            $permissions['schedules.update'],
+            $permissions['schedules.deactivate'],
         ]);
 
         $this->seedUser(
@@ -134,6 +148,7 @@ class DatabaseSeeder extends Seeder
         $this->seedStudentGuardianRecords();
         $this->seedTeacherRecords();
         $this->seedEnrollmentRecords();
+        $this->seedScheduleRecords();
     }
 
     private function seedUser(string $name, string $email, string $jobTitle, Role $role): void
@@ -336,6 +351,36 @@ class DatabaseSeeder extends Seeder
                 'section_id' => $section->id,
                 'enrolled_at' => '2026-06-01',
                 'notes' => 'Seeded active enrollment for local development.',
+            ],
+        );
+    }
+
+    private function seedScheduleRecords(): void
+    {
+        $schoolYear = SchoolYear::where('name', '2026-2027')->first();
+        $section = Section::where('code', 'G1-A')->first();
+        $subject = Subject::where('code', 'MATH')->first();
+        $teacher = TeacherProfile::where('employee_number', 'TCH-0001')->first();
+        $classroom = Classroom::where('code', 'RM-101')->first();
+
+        if (! $schoolYear || ! $section || ! $subject || ! $teacher) {
+            return;
+        }
+
+        ClassSchedule::firstOrCreate(
+            [
+                'school_year_id' => $schoolYear->id,
+                'section_id' => $section->id,
+                'subject_id' => $subject->id,
+                'teacher_id' => $teacher->id,
+                'day_of_week' => ClassSchedule::DAY_MONDAY,
+                'starts_at' => '08:00',
+                'ends_at' => '09:00',
+            ],
+            [
+                'classroom_id' => $classroom?->id,
+                'status' => ClassSchedule::STATUS_ACTIVE,
+                'notes' => 'Seeded class schedule for local development.',
             ],
         );
     }

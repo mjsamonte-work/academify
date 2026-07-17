@@ -7,7 +7,10 @@ use App\Http\Controllers\Records\GuardianController;
 use App\Http\Controllers\Records\StudentController;
 use App\Http\Controllers\Records\StudentGuardianController;
 use App\Http\Controllers\Records\TeacherController;
+use App\Http\Controllers\Scheduling\ClassScheduleController;
+use App\Http\Controllers\Scheduling\SectionScheduleController;
 use App\Http\Controllers\Teacher\ProfileController as TeacherProfileController;
+use App\Http\Controllers\Teacher\ScheduleController as TeacherScheduleController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('home');
@@ -68,11 +71,25 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('permission:teachers.view_own')
         ->name('teacher.profile');
 
+    Route::get('teacher/schedule', [TeacherScheduleController::class, 'index'])
+        ->middleware('permission:schedules.view_own')
+        ->name('teacher.schedule');
+
     Route::prefix('enrollment')->name('enrollment.')->group(function () {
         Route::resource('enrollments', EnrollmentController::class)
             ->except(['destroy'])
             ->middleware('permission:enrollments.view');
     });
+
+    Route::prefix('scheduling')
+        ->name('scheduling.')
+        ->middleware('permission:schedules.view')
+        ->group(function () {
+            Route::resource('class-schedules', ClassScheduleController::class)
+                ->except(['destroy']);
+            Route::get('sections/{section}', [SectionScheduleController::class, 'show'])
+                ->name('sections.show');
+        });
 });
 
 require __DIR__.'/settings.php';
