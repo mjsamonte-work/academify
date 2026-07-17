@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Academic\AcademicSetupController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Announcements\AnnouncementController;
+use App\Http\Controllers\Announcements\NoticeController;
 use App\Http\Controllers\Attendance\AttendanceSessionController;
 use App\Http\Controllers\Attendance\StudentAttendanceController;
 use App\Http\Controllers\Enrollment\EnrollmentController;
@@ -132,6 +134,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::resource('grading-periods', GradingPeriodController::class)->except(['destroy']);
             Route::resource('assessments', AssessmentController::class)->except(['destroy']);
             Route::get('assessments/{assessment}/records', [AssessmentController::class, 'records'])->name('assessments.records');
+        });
+
+    Route::resource('announcements', AnnouncementController::class)
+        ->except(['destroy'])
+        ->middleware('permission:announcements.view');
+
+    Route::prefix('notices')
+        ->name('notices.')
+        ->middleware('permission:announcements.view_own')
+        ->group(function () {
+            Route::get('/', [NoticeController::class, 'index'])->name('index');
+            Route::get('{notification}', [NoticeController::class, 'show'])->name('show');
+            Route::post('{notification}/read', [NoticeController::class, 'read'])->name('read');
         });
 });
 
