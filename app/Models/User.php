@@ -95,6 +95,16 @@ class User extends Authenticatable implements PasskeyUser
         return $this->hasMany(StudentGrade::class, 'submitted_by');
     }
 
+    public function announcements(): HasMany
+    {
+        return $this->hasMany(Announcement::class, 'created_by');
+    }
+
+    public function noticeNotifications(): HasMany
+    {
+        return $this->hasMany(Notification::class);
+    }
+
     /**
      * Get the user's initials
      */

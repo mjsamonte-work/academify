@@ -16,6 +16,12 @@
                         {{ __('Dashboard') }}
                     </flux:sidebar.item>
 
+                    @can('announcements.view_own')
+                        <flux:sidebar.item icon="book-open-text" :href="route('notices.index')" :current="request()->routeIs('notices.*')" wire:navigate>
+                            {{ __('Notices') }}
+                        </flux:sidebar.item>
+                    @endcan
+
                     @can('users.view')
                         <flux:sidebar.item icon="users" :href="route('admin.users.index')" :current="request()->routeIs('admin.users.*')" wire:navigate>
                             {{ __('Users') }}
@@ -120,6 +126,14 @@
                         </flux:sidebar.item>
                         <flux:sidebar.item icon="book-open-text" :href="route('grades.assessments.index')" :current="request()->routeIs('grades.assessments.*')" wire:navigate>
                             {{ __('Assessments') }}
+                        </flux:sidebar.item>
+                    </flux:sidebar.group>
+                @endcan
+
+                @can('announcements.view')
+                    <flux:sidebar.group :heading="__('Announcements')" class="grid">
+                        <flux:sidebar.item icon="book-open-text" :href="route('announcements.index')" :current="request()->routeIs('announcements.*')" wire:navigate>
+                            {{ __('Announcements') }}
                         </flux:sidebar.item>
                     </flux:sidebar.group>
                 @endcan

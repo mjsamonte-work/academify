@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Announcement;
+use App\Models\AnnouncementAudience;
 use App\Models\Assessment;
 use App\Models\AttendanceRecord;
 use App\Models\AttendanceSession;
@@ -82,6 +84,12 @@ class DatabaseSeeder extends Seeder
             'grades.submit',
             'grades.publish',
             'grades.view_own',
+            'announcements.view',
+            'announcements.create',
+            'announcements.update',
+            'announcements.publish',
+            'announcements.archive',
+            'announcements.view_own',
         ])->mapWithKeys(fn (string $permission) => [
             $permission => Permission::firstOrCreate([
                 'name' => $permission,
@@ -94,7 +102,7 @@ class DatabaseSeeder extends Seeder
         $student = Role::firstOrCreate(['name' => 'Student', 'guard_name' => 'web']);
         $guardian = Role::firstOrCreate(['name' => 'Parent/Guardian', 'guard_name' => 'web']);
 
-        $administrator->syncPermissions($permissions->except(['teachers.view_own', 'schedules.view_own', 'attendance.view_own', 'grades.view_own'])->values());
+        $administrator->syncPermissions($permissions->except(['teachers.view_own', 'schedules.view_own', 'attendance.view_own', 'grades.view_own', 'announcements.view_own'])->values());
         $teacher->syncPermissions([
             $permissions['dashboard.view'],
             $permissions['teachers.view_own'],
@@ -107,9 +115,10 @@ class DatabaseSeeder extends Seeder
             $permissions['grades.create'],
             $permissions['grades.update'],
             $permissions['grades.submit'],
+            $permissions['announcements.view_own'],
         ]);
-        $student->syncPermissions([$permissions['dashboard.view']]);
-        $guardian->syncPermissions([$permissions['dashboard.view']]);
+        $student->syncPermissions([$permissions['dashboard.view'], $permissions['announcements.view_own']]);
+        $guardian->syncPermissions([$permissions['dashboard.view'], $permissions['announcements.view_own']]);
 
         $administrator->givePermissionTo([
             $permissions['academic_setup.view'],
@@ -147,6 +156,11 @@ class DatabaseSeeder extends Seeder
             $permissions['grades.update'],
             $permissions['grades.submit'],
             $permissions['grades.publish'],
+            $permissions['announcements.view'],
+            $permissions['announcements.create'],
+            $permissions['announcements.update'],
+            $permissions['announcements.publish'],
+            $permissions['announcements.archive'],
         ]);
 
         $this->seedUser(
@@ -184,6 +198,7 @@ class DatabaseSeeder extends Seeder
         $this->seedScheduleRecords();
         $this->seedAttendanceRecords();
         $this->seedGradeRecords();
+        $this->seedAnnouncementRecords();
     }
 
     private function seedUser(string $name, string $email, string $jobTitle, Role $role): void
@@ -505,5 +520,35 @@ class DatabaseSeeder extends Seeder
                 'submitted_at' => now(),
             ],
         );
+    }
+
+    private function seedAnnouncementRecords(): void
+    {
+        $admin = User::where('email', 'admin@academify.local')->first();
+        $teacher = User::where('email', 'teacher@academify.local')->first();
+
+        if (! $admin || ! $teacher) {
+            return;
+        }
+
+        $announcement = Announcement::firstOrCreate(
+            ['title' => 'Welcome to Academify'],
+            [
+                'body' => 'This is a seeded announcement for local development.',
+                'priority' => Announcement::PRIORITY_NORMAL,
+                'status' => Announcement::STATUS_PUBLISHED,
+                'publish_at' => now(),
+                'created_by' => $admin->id,
+            ],
+        );
+
+        $announcement->audiences()->firstOrCreate([
+            'audience_type' => AnnouncementAudience::TYPE_ROLE,
+            'role_name' => 'Teacher',
+        ]);
+
+        $announcement->notifications()->firstOrCreate([
+            'user_id' => $teacher->id,
+        ]);
     }
 }
