@@ -76,6 +76,11 @@
                                 {{ __('My Schedule') }}
                             </flux:sidebar.item>
                         @endcan
+                        @can('attendance.view_own')
+                            <flux:sidebar.item icon="layout-grid" :href="route('teacher.attendance.index')" :current="request()->routeIs('teacher.attendance.*')" wire:navigate>
+                                {{ __('Attendance Entry') }}
+                            </flux:sidebar.item>
+                        @endcan
                     </flux:sidebar.group>
                 @endcan
 
@@ -91,6 +96,14 @@
                     <flux:sidebar.group :heading="__('Scheduling')" class="grid">
                         <flux:sidebar.item icon="layout-grid" :href="route('scheduling.class-schedules.index')" :current="request()->routeIs('scheduling.*')" wire:navigate>
                             {{ __('Class Schedules') }}
+                        </flux:sidebar.item>
+                    </flux:sidebar.group>
+                @endcan
+
+                @can('attendance.view')
+                    <flux:sidebar.group :heading="__('Attendance')" class="grid">
+                        <flux:sidebar.item icon="layout-grid" :href="route('attendance.sessions.index')" :current="request()->routeIs('attendance.*')" wire:navigate>
+                            {{ __('Attendance Sessions') }}
                         </flux:sidebar.item>
                     </flux:sidebar.group>
                 @endcan

@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Academic\AcademicSetupController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Attendance\AttendanceSessionController;
+use App\Http\Controllers\Attendance\StudentAttendanceController;
 use App\Http\Controllers\Enrollment\EnrollmentController;
 use App\Http\Controllers\Records\GuardianController;
 use App\Http\Controllers\Records\StudentController;
@@ -9,6 +11,7 @@ use App\Http\Controllers\Records\StudentGuardianController;
 use App\Http\Controllers\Records\TeacherController;
 use App\Http\Controllers\Scheduling\ClassScheduleController;
 use App\Http\Controllers\Scheduling\SectionScheduleController;
+use App\Http\Controllers\Teacher\AttendanceController as TeacherAttendanceController;
 use App\Http\Controllers\Teacher\ProfileController as TeacherProfileController;
 use App\Http\Controllers\Teacher\ScheduleController as TeacherScheduleController;
 use Illuminate\Support\Facades\Route;
@@ -75,6 +78,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('permission:schedules.view_own')
         ->name('teacher.schedule');
 
+    Route::prefix('teacher/attendance')
+        ->name('teacher.attendance.')
+        ->middleware('permission:attendance.view_own')
+        ->group(function () {
+            Route::get('/', [TeacherAttendanceController::class, 'index'])->name('index');
+            Route::get('{classSchedule}', [TeacherAttendanceController::class, 'show'])->name('show');
+            Route::post('{classSchedule}', [TeacherAttendanceController::class, 'save'])->name('save');
+        });
+
     Route::prefix('enrollment')->name('enrollment.')->group(function () {
         Route::resource('enrollments', EnrollmentController::class)
             ->except(['destroy'])
@@ -89,6 +101,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 ->except(['destroy']);
             Route::get('sections/{section}', [SectionScheduleController::class, 'show'])
                 ->name('sections.show');
+        });
+
+    Route::prefix('attendance')
+        ->name('attendance.')
+        ->middleware('permission:attendance.view')
+        ->group(function () {
+            Route::get('sessions', [AttendanceSessionController::class, 'index'])->name('sessions.index');
+            Route::get('sessions/{session}', [AttendanceSessionController::class, 'show'])->name('sessions.show');
+            Route::get('students/{student}', [StudentAttendanceController::class, 'show'])->name('students.show');
         });
 });
 
