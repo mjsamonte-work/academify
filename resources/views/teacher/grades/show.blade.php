@@ -1,0 +1,11 @@
+<x-layouts::app :title="__('Class Grades')">
+    <div class="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 p-6">
+        <div class="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+            <div><flux:heading size="xl">{{ __('Class Grades') }}</flux:heading><flux:subheading>{{ $classSchedule->subject->name }} · {{ $classSchedule->section->code }}</flux:subheading></div>
+            <form method="GET" action="{{ route('teacher.grades.show', $classSchedule) }}" class="flex gap-2"><select name="grading_period_id" class="h-10 rounded-md border border-zinc-300 bg-white px-3 text-sm dark:border-zinc-700 dark:bg-zinc-950">@foreach($gradingPeriods as $period)<option value="{{ $period->id }}" @selected((int) $gradingPeriodId === $period->id)>{{ $period->name }}</option>@endforeach</select><flux:button type="submit">{{ __('Open') }}</flux:button></form>
+        </div>
+        <section class="rounded-lg border border-zinc-200 bg-white shadow-xs dark:border-zinc-700 dark:bg-zinc-900"><div class="overflow-x-auto"><table class="w-full text-left text-sm"><thead class="border-b border-zinc-200 text-xs uppercase text-zinc-500 dark:border-zinc-700 dark:text-zinc-400"><tr><th class="px-4 py-3">{{ __('Assessment') }}</th><th class="px-4 py-3">{{ __('Max') }}</th><th class="px-4 py-3">{{ __('Records') }}</th><th class="px-4 py-3">{{ __('Status') }}</th><th class="px-4 py-3 text-right">{{ __('Actions') }}</th></tr></thead>
+            <tbody class="divide-y divide-zinc-200 dark:divide-zinc-800">@forelse($assessments as $assessment)<tr><td class="px-4 py-4"><p class="font-medium">{{ $assessment->title }}</p><p class="text-zinc-500">{{ $assessment->assessment_type ?? __('Assessment') }}</p></td><td class="px-4 py-4">{{ $assessment->max_score }}</td><td class="px-4 py-4">{{ $assessment->studentGrades->count() }}</td><td class="px-4 py-4"><x-records.partials.status-badge :status="$assessment->status" /></td><td class="px-4 py-4 text-right"><flux:button size="sm" :href="route('teacher.grades.assessments.edit', $assessment)" wire:navigate>{{ __('Enter Grades') }}</flux:button></td></tr>@empty<tr><td colspan="5" class="px-4 py-10 text-center text-zinc-500">{{ __('No assessments found for this period.') }}</td></tr>@endforelse</tbody>
+        </table></div></section>
+    </div>
+</x-layouts::app>

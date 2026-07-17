@@ -81,6 +81,11 @@
                                 {{ __('Attendance Entry') }}
                             </flux:sidebar.item>
                         @endcan
+                        @can('grades.view_own')
+                            <flux:sidebar.item icon="book-open-text" :href="route('teacher.grades.index')" :current="request()->routeIs('teacher.grades.*')" wire:navigate>
+                                {{ __('Grade Entry') }}
+                            </flux:sidebar.item>
+                        @endcan
                     </flux:sidebar.group>
                 @endcan
 
@@ -104,6 +109,17 @@
                     <flux:sidebar.group :heading="__('Attendance')" class="grid">
                         <flux:sidebar.item icon="layout-grid" :href="route('attendance.sessions.index')" :current="request()->routeIs('attendance.*')" wire:navigate>
                             {{ __('Attendance Sessions') }}
+                        </flux:sidebar.item>
+                    </flux:sidebar.group>
+                @endcan
+
+                @can('grades.view')
+                    <flux:sidebar.group :heading="__('Grades')" class="grid">
+                        <flux:sidebar.item icon="layout-grid" :href="route('grades.grading-periods.index')" :current="request()->routeIs('grades.grading-periods.*')" wire:navigate>
+                            {{ __('Grading Periods') }}
+                        </flux:sidebar.item>
+                        <flux:sidebar.item icon="book-open-text" :href="route('grades.assessments.index')" :current="request()->routeIs('grades.assessments.*')" wire:navigate>
+                            {{ __('Assessments') }}
                         </flux:sidebar.item>
                     </flux:sidebar.group>
                 @endcan

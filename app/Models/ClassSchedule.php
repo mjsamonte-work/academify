@@ -107,6 +107,14 @@ class ClassSchedule extends Model
     }
 
     /**
+     * @return HasMany<Assessment, $this>
+     */
+    public function assessments(): HasMany
+    {
+        return $this->hasMany(Assessment::class);
+    }
+
+    /**
      * @return array<int, string>
      */
     public static function days(): array

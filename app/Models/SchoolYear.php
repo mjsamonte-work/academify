@@ -53,6 +53,14 @@ class SchoolYear extends Model
     }
 
     /**
+     * @return HasMany<GradingPeriod, $this>
+     */
+    public function gradingPeriods(): HasMany
+    {
+        return $this->hasMany(GradingPeriod::class);
+    }
+
+    /**
      * @return array<string, string>
      */
     protected function casts(): array

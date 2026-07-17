@@ -1,0 +1,9 @@
+<x-layouts::app :title="$assessment->title">
+    <div class="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 p-6">
+        <div class="flex flex-col justify-between gap-4 md:flex-row md:items-center"><div><flux:heading size="xl">{{ $assessment->title }}</flux:heading><flux:subheading>{{ $assessment->classSchedule->subject->name }} · {{ $assessment->gradingPeriod->name }}</flux:subheading></div><div class="flex gap-2"><flux:button :href="route('grades.assessments.records', $assessment)" wire:navigate>{{ __('Review Records') }}</flux:button>@can('grades.update')<flux:button :href="route('grades.assessments.edit', $assessment)" wire:navigate variant="primary">{{ __('Edit Assessment') }}</flux:button>@endcan</div></div>
+        @if(session('status'))<div class="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{{ session('status') }}</div>@endif
+        <section class="rounded-lg border border-zinc-200 bg-white p-5 shadow-xs dark:border-zinc-700 dark:bg-zinc-900">
+            <dl class="grid gap-4 text-sm md:grid-cols-3"><div><dt class="text-zinc-500">{{ __('Status') }}</dt><dd><x-records.partials.status-badge :status="$assessment->status" /></dd></div><div><dt class="text-zinc-500">{{ __('Class') }}</dt><dd>{{ $assessment->classSchedule->subject->code }} · {{ $assessment->classSchedule->section->code }}</dd></div><div><dt class="text-zinc-500">{{ __('Max Score') }}</dt><dd>{{ $assessment->max_score }}</dd></div><div><dt class="text-zinc-500">{{ __('Weight') }}</dt><dd>{{ $assessment->weight }}</dd></div><div><dt class="text-zinc-500">{{ __('Due') }}</dt><dd>{{ $assessment->due_date?->toFormattedDateString() ?? __('Not set') }}</dd></div><div><dt class="text-zinc-500">{{ __('Teacher') }}</dt><dd>{{ $assessment->classSchedule->teacher->fullName() }}</dd></div></dl>
+        </section>
+    </div>
+</x-layouts::app>
