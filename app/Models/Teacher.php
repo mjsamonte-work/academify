@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
@@ -80,6 +81,14 @@ class Teacher extends Model
     public function subjects(): BelongsToMany
     {
         return $this->belongsToMany(Subject::class, 'teacher_subject')->withTimestamps();
+    }
+
+    /**
+     * @return HasMany<ClassSchedule, $this>
+     */
+    public function classSchedules(): HasMany
+    {
+        return $this->hasMany(ClassSchedule::class);
     }
 
     /**

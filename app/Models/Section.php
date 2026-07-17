@@ -45,6 +45,14 @@ class Section extends Model
     }
 
     /**
+     * @return HasMany<ClassSchedule, $this>
+     */
+    public function classSchedules(): HasMany
+    {
+        return $this->hasMany(ClassSchedule::class);
+    }
+
+    /**
      * @return array<string, string>
      */
     protected function casts(): array
