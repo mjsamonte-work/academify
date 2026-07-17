@@ -137,6 +137,14 @@
                         </flux:sidebar.item>
                     </flux:sidebar.group>
                 @endcan
+
+                @can('reports.view')
+                    <flux:sidebar.group :heading="__('Reports')" class="grid">
+                        <flux:sidebar.item icon="layout-grid" :href="route('reports.index')" :current="request()->routeIs('reports.*')" wire:navigate>
+                            {{ __('Reports') }}
+                        </flux:sidebar.item>
+                    </flux:sidebar.group>
+                @endcan
             </flux:sidebar.nav>
 
             <flux:spacer />

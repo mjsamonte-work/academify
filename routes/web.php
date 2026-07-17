@@ -13,6 +13,7 @@ use App\Http\Controllers\Records\GuardianController;
 use App\Http\Controllers\Records\StudentController;
 use App\Http\Controllers\Records\StudentGuardianController;
 use App\Http\Controllers\Records\TeacherController;
+use App\Http\Controllers\Reports\ReportController;
 use App\Http\Controllers\Scheduling\ClassScheduleController;
 use App\Http\Controllers\Scheduling\SectionScheduleController;
 use App\Http\Controllers\Teacher\AttendanceController as TeacherAttendanceController;
@@ -139,6 +140,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('announcements', AnnouncementController::class)
         ->except(['destroy'])
         ->middleware('permission:announcements.view');
+
+    Route::prefix('reports')
+        ->name('reports.')
+        ->middleware('permission:reports.view')
+        ->group(function () {
+            Route::get('/', [ReportController::class, 'index'])->name('index');
+            Route::get('{report}/export/{format}', [ReportController::class, 'export'])->name('export');
+            Route::get('{report}', [ReportController::class, 'show'])->name('show');
+        });
 
     Route::prefix('notices')
         ->name('notices.')
