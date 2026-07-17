@@ -129,7 +129,7 @@ class TeacherController extends Controller
             'users' => User::query()
                 ->where(function ($query) use ($teacher): void {
                     $query->whereDoesntHave('teacher')
-                        ->when($teacher?->user_id, fn ($query) => $query->orWhereKey($teacher->user_id));
+                        ->when($teacher?->user_id, fn ($query, $userId) => $query->orWhere('id', $userId));
                 })
                 ->orderBy('name')
                 ->get(),

@@ -59,7 +59,7 @@ class ActivityLogObserver
             return ActivityLog::ACTION_UPDATED;
         }
 
-        return match ($model->status) {
+        return match ($model->getAttribute('status')) {
             'active' => ActivityLog::ACTION_ACTIVATED,
             'inactive' => ActivityLog::ACTION_DEACTIVATED,
             'submitted' => ActivityLog::ACTION_SUBMITTED,

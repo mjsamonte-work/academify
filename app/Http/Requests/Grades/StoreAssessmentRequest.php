@@ -7,6 +7,7 @@ use App\Models\ClassSchedule;
 use App\Models\GradingPeriod;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class StoreAssessmentRequest extends FormRequest
 {
@@ -33,9 +34,9 @@ class StoreAssessmentRequest extends FormRequest
         ];
     }
 
-    public function withValidator($validator): void
+    public function withValidator(Validator $validator): void
     {
-        $validator->after(function ($validator): void {
+        $validator->after(function (Validator $validator): void {
             $classSchedule = ClassSchedule::find($this->integer('class_schedule_id'));
             $gradingPeriod = GradingPeriod::find($this->integer('grading_period_id'));
 

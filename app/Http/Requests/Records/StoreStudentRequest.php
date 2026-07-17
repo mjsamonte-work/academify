@@ -6,6 +6,7 @@ use App\Models\Section;
 use App\Models\Student;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class StoreStudentRequest extends FormRequest
 {
@@ -36,9 +37,9 @@ class StoreStudentRequest extends FormRequest
         ];
     }
 
-    public function withValidator($validator): void
+    public function withValidator(Validator $validator): void
     {
-        $validator->after(function ($validator): void {
+        $validator->after(function (Validator $validator): void {
             $gradeLevelId = $this->integer('grade_level_id');
             $sectionId = $this->integer('section_id');
 

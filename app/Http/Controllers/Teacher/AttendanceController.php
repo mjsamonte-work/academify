@@ -7,8 +7,10 @@ use App\Http\Requests\Attendance\SaveAttendanceRequest;
 use App\Models\AttendanceSession;
 use App\Models\ClassSchedule;
 use App\Models\Enrollment;
+use App\Models\Student;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 class AttendanceController extends Controller
@@ -100,7 +102,10 @@ class AttendanceController extends Controller
         );
     }
 
-    private function studentsForSchedule(ClassSchedule $classSchedule)
+    /**
+     * @return Collection<int, Student>
+     */
+    private function studentsForSchedule(ClassSchedule $classSchedule): Collection
     {
         return Enrollment::query()
             ->with('student')

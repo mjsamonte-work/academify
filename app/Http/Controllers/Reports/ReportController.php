@@ -15,6 +15,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Validation\Rule;
+use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -28,12 +29,12 @@ class ReportController extends Controller
         'teacher-schedules' => 'Teacher Schedule Report',
     ];
 
-    public function index()
+    public function index(): View
     {
         return view('reports.index', ['reports' => self::REPORTS]);
     }
 
-    public function show(Request $request, AcademifyReport $reports, string $report)
+    public function show(Request $request, AcademifyReport $reports, string $report): View
     {
         abort_unless(array_key_exists($report, self::REPORTS), 404);
 
@@ -83,6 +84,9 @@ class ReportController extends Controller
         ]);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function lookups(): array
     {
         return [

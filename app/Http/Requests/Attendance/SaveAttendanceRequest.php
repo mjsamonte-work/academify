@@ -8,6 +8,7 @@ use App\Models\ClassSchedule;
 use App\Models\Enrollment;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class SaveAttendanceRequest extends FormRequest
 {
@@ -46,9 +47,9 @@ class SaveAttendanceRequest extends FormRequest
         ];
     }
 
-    public function withValidator($validator): void
+    public function withValidator(Validator $validator): void
     {
-        $validator->after(function ($validator): void {
+        $validator->after(function (Validator $validator): void {
             /** @var ClassSchedule|null $classSchedule */
             $classSchedule = $this->route('classSchedule');
 
@@ -56,7 +57,8 @@ class SaveAttendanceRequest extends FormRequest
                 return;
             }
 
-            $studentIds = collect($this->input('records', []))
+            $recordInput = is_array($this->input('records')) ? $this->input('records') : [];
+            $studentIds = collect($recordInput)
                 ->pluck('student_id')
                 ->filter()
                 ->map(fn ($id) => (int) $id);

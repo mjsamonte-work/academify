@@ -7,6 +7,7 @@ use App\Models\Enrollment;
 use App\Models\StudentGrade;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class SaveStudentGradesRequest extends FormRequest
 {
@@ -45,9 +46,9 @@ class SaveStudentGradesRequest extends FormRequest
         ];
     }
 
-    public function withValidator($validator): void
+    public function withValidator(Validator $validator): void
     {
-        $validator->after(function ($validator): void {
+        $validator->after(function (Validator $validator): void {
             /** @var Assessment|null $assessment */
             $assessment = $this->route('assessment');
 
@@ -56,7 +57,8 @@ class SaveStudentGradesRequest extends FormRequest
             }
 
             $assessment->loadMissing('classSchedule');
-            $studentIds = collect($this->input('grades', []))
+            $gradeInput = is_array($this->input('grades')) ? $this->input('grades') : [];
+            $studentIds = collect($gradeInput)
                 ->pluck('student_id')
                 ->filter()
                 ->map(fn ($id) => (int) $id);

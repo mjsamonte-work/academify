@@ -7,6 +7,7 @@ use App\Models\SchoolYear;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class StoreGradingPeriodRequest extends FormRequest
 {
@@ -30,9 +31,9 @@ class StoreGradingPeriodRequest extends FormRequest
         ];
     }
 
-    public function withValidator($validator): void
+    public function withValidator(Validator $validator): void
     {
-        $validator->after(function ($validator): void {
+        $validator->after(function (Validator $validator): void {
             $schoolYear = SchoolYear::find($this->integer('school_year_id'));
 
             if (! $schoolYear || ! $this->filled(['starts_at', 'ends_at'])) {

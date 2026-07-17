@@ -78,6 +78,9 @@ class AnnouncementController extends Controller
         return redirect()->route('announcements.show', $announcement)->with('status', 'Announcement updated.');
     }
 
+    /**
+     * @param  array<int, array<string, mixed>>  $audiences
+     */
     private function syncAudiences(Announcement $announcement, array $audiences): void
     {
         $announcement->audiences()->delete();
@@ -91,6 +94,9 @@ class AnnouncementController extends Controller
             ]));
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function lookups(): array
     {
         return [

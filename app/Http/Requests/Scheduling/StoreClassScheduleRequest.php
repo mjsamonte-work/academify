@@ -6,6 +6,7 @@ use App\Models\ClassSchedule;
 use App\Models\Teacher;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class StoreClassScheduleRequest extends FormRequest
 {
@@ -33,9 +34,9 @@ class StoreClassScheduleRequest extends FormRequest
         ];
     }
 
-    public function withValidator($validator): void
+    public function withValidator(Validator $validator): void
     {
-        $validator->after(function ($validator): void {
+        $validator->after(function (Validator $validator): void {
             $this->validateTeacherSubject($validator);
 
             if ($this->string('status')->toString() !== ClassSchedule::STATUS_ACTIVE) {
@@ -56,7 +57,7 @@ class StoreClassScheduleRequest extends FormRequest
         return null;
     }
 
-    private function validateTeacherSubject($validator): void
+    private function validateTeacherSubject(Validator $validator): void
     {
         $teacherId = $this->integer('teacher_id');
         $subjectId = $this->integer('subject_id');
@@ -75,7 +76,7 @@ class StoreClassScheduleRequest extends FormRequest
         }
     }
 
-    private function validateOverlap($validator, string $field, string $column, string $message): void
+    private function validateOverlap(Validator $validator, string $field, string $column, string $message): void
     {
         $schoolYearId = $this->integer('school_year_id');
         $dayOfWeek = $this->string('day_of_week')->toString();

@@ -31,7 +31,7 @@ class SettingController extends Controller
                 ->firstOrFail()
                 ->update([
                     'value' => ['value' => $value],
-                    'updated_by' => $request->user()?->id,
+                    'updated_by' => $request->user()->id,
                 ]);
         }
 

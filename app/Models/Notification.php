@@ -21,11 +21,17 @@ class Notification extends Model
     /** @use HasFactory<NotificationFactory> */
     use HasFactory;
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @return BelongsTo<Announcement, $this>
+     */
     public function announcement(): BelongsTo
     {
         return $this->belongsTo(Announcement::class);

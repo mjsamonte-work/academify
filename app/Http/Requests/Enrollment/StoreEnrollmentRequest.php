@@ -6,6 +6,7 @@ use App\Models\Enrollment;
 use App\Models\Section;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class StoreEnrollmentRequest extends FormRequest
 {
@@ -32,9 +33,9 @@ class StoreEnrollmentRequest extends FormRequest
         ];
     }
 
-    public function withValidator($validator): void
+    public function withValidator(Validator $validator): void
     {
-        $validator->after(function ($validator): void {
+        $validator->after(function (Validator $validator): void {
             $this->validateSectionPlacement($validator);
             $this->validateDuplicateEnrollment($validator);
         });
@@ -58,7 +59,7 @@ class StoreEnrollmentRequest extends FormRequest
         return null;
     }
 
-    private function validateSectionPlacement($validator): void
+    private function validateSectionPlacement(Validator $validator): void
     {
         $gradeLevelId = $this->integer('grade_level_id');
         $sectionId = $this->integer('section_id');
@@ -77,7 +78,7 @@ class StoreEnrollmentRequest extends FormRequest
         }
     }
 
-    private function validateDuplicateEnrollment($validator): void
+    private function validateDuplicateEnrollment(Validator $validator): void
     {
         if ($this->string('status')->toString() !== Enrollment::STATUS_ENROLLED) {
             return;

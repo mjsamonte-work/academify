@@ -17,8 +17,13 @@ class PublishAnnouncement
     {
         $announcement->load('audiences');
 
-        $users = $announcement->audiences
-            ->flatMap(fn (AnnouncementAudience $audience) => $this->usersForAudience($audience))
+        $users = collect();
+
+        foreach ($announcement->audiences as $audience) {
+            $users = $users->merge($this->usersForAudience($audience));
+        }
+
+        $users = $users
             ->unique('id')
             ->values();
 

@@ -26,6 +26,10 @@ class AcademifyReport
         };
     }
 
+    /**
+     * @param  array<string, mixed>  $filters
+     * @return array{title: string, headings: array<int, string>, rows: array<int, array<int, mixed>>}
+     */
     private function students(array $filters): array
     {
         $rows = Student::query()
@@ -38,8 +42,8 @@ class AcademifyReport
             ->map(fn (Student $student): array => [
                 $student->student_number,
                 $student->fullName(),
-                $student->gradeLevel?->name ?? 'Not set',
-                $student->section?->code ?? 'Not set',
+                $student->gradeLevel->name,
+                $student->section->code,
                 str($student->status)->headline()->toString(),
                 $student->guardians->count(),
                 $student->email,
@@ -50,6 +54,10 @@ class AcademifyReport
         return ['title' => 'Student Master List', 'headings' => ['Student No.', 'Name', 'Grade', 'Section', 'Status', 'Guardians', 'Email', 'Phone'], 'rows' => $rows];
     }
 
+    /**
+     * @param  array<string, mixed>  $filters
+     * @return array{title: string, headings: array<int, string>, rows: array<int, array<int, mixed>>}
+     */
     private function enrollments(array $filters): array
     {
         $rows = Enrollment::query()
@@ -76,6 +84,10 @@ class AcademifyReport
         return ['title' => 'Enrollment Report', 'headings' => ['Student No.', 'Name', 'School Year', 'Grade', 'Section', 'Status', 'Enrolled', 'Withdrawn', 'Completed'], 'rows' => $rows];
     }
 
+    /**
+     * @param  array<string, mixed>  $filters
+     * @return array{title: string, headings: array<int, string>, rows: array<int, array<int, mixed>>}
+     */
     private function attendance(array $filters): array
     {
         $records = AttendanceRecord::query()
@@ -108,6 +120,10 @@ class AcademifyReport
         return ['title' => 'Attendance Summary Report', 'headings' => ['Student No.', 'Name', 'Section', 'Subject', 'Present', 'Absent', 'Late', 'Excused'], 'rows' => $rows];
     }
 
+    /**
+     * @param  array<string, mixed>  $filters
+     * @return array{title: string, headings: array<int, string>, rows: array<int, array<int, mixed>>}
+     */
     private function grades(array $filters): array
     {
         $rows = StudentGrade::query()
@@ -134,6 +150,10 @@ class AcademifyReport
         return ['title' => 'Grade Report', 'headings' => ['Student No.', 'Name', 'Section', 'Subject', 'Period', 'Assessment', 'Score', 'Max Score', 'Status'], 'rows' => $rows];
     }
 
+    /**
+     * @param  array<string, mixed>  $filters
+     * @return array{title: string, headings: array<int, string>, rows: array<int, array<int, mixed>>}
+     */
     private function teacherSchedules(array $filters): array
     {
         $rows = ClassSchedule::query()
@@ -150,7 +170,7 @@ class AcademifyReport
                 $schedule->teacher->fullName(),
                 $schedule->subject->name,
                 $schedule->section->code,
-                $schedule->classroom?->code ?? 'No room',
+                optional($schedule->classroom)->code ?? 'No room',
                 str($schedule->day_of_week)->headline()->toString(),
                 substr($schedule->starts_at, 0, 5),
                 substr($schedule->ends_at, 0, 5),

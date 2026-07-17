@@ -6,6 +6,7 @@ use App\Models\Announcement;
 use App\Models\AnnouncementAudience;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class StoreAnnouncementRequest extends FormRequest
 {
@@ -14,6 +15,9 @@ class StoreAnnouncementRequest extends FormRequest
         return $this->user()?->can('announcements.create') ?? false;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function rules(): array
     {
         return [
@@ -30,21 +34,22 @@ class StoreAnnouncementRequest extends FormRequest
         ];
     }
 
-    public function withValidator($validator): void
+    public function withValidator(Validator $validator): void
     {
-        $validator->after(function ($validator): void {
-            $audiences = collect($this->input('audiences', []))->filter(fn ($audience) => filled($audience['audience_type'] ?? null));
+        $validator->after(function (Validator $validator): void {
+            $audienceInput = is_array($this->input('audiences')) ? $this->input('audiences') : [];
+            $audiences = collect($audienceInput)->filter(fn ($audience) => is_array($audience) && filled($audience['audience_type'] ?? null));
 
             if ($this->input('status') === Announcement::STATUS_PUBLISHED && $audiences->isEmpty()) {
                 $validator->errors()->add('audiences', 'At least one audience is required before publishing.');
             }
 
             foreach ($audiences as $index => $audience) {
-                if (($audience['audience_type'] ?? null) === AnnouncementAudience::TYPE_ROLE && blank($audience['role_name'] ?? null)) {
+                if (data_get($audience, 'audience_type') === AnnouncementAudience::TYPE_ROLE && blank(data_get($audience, 'role_name'))) {
                     $validator->errors()->add("audiences.$index.role_name", 'A role audience requires a role.');
                 }
 
-                if (($audience['audience_type'] ?? null) === AnnouncementAudience::TYPE_SECTION && blank($audience['section_id'] ?? null)) {
+                if (data_get($audience, 'audience_type') === AnnouncementAudience::TYPE_SECTION && blank(data_get($audience, 'section_id'))) {
                     $validator->errors()->add("audiences.$index.section_id", 'A section audience requires a section.');
                 }
             }

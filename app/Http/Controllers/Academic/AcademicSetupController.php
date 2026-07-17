@@ -165,7 +165,7 @@ class AcademicSetupController extends Controller
     /**
      * @param  array<string, mixed>  $config
      */
-    private function findRecord(array $config, int $id): Model
+    private function findRecord(array $config, int|string $id): Model
     {
         /** @var class-string<Model> $model */
         $model = $config['model'];
@@ -211,6 +211,9 @@ class AcademicSetupController extends Controller
         };
     }
 
+    /**
+     * @param  Builder<Model>  $query
+     */
     private function queryHasColumn(Builder $query, string $column): bool
     {
         return in_array($column, $query->getModel()->getFillable(), true);

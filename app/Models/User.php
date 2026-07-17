@@ -95,11 +95,17 @@ class User extends Authenticatable implements PasskeyUser
         return $this->hasMany(StudentGrade::class, 'submitted_by');
     }
 
+    /**
+     * @return HasMany<Announcement, $this>
+     */
     public function announcements(): HasMany
     {
         return $this->hasMany(Announcement::class, 'created_by');
     }
 
+    /**
+     * @return HasMany<Notification, $this>
+     */
     public function noticeNotifications(): HasMany
     {
         return $this->hasMany(Notification::class);

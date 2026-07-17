@@ -38,16 +38,25 @@ class Announcement extends Model
 
     public const PRIORITY_URGENT = 'urgent';
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    /**
+     * @return HasMany<AnnouncementAudience, $this>
+     */
     public function audiences(): HasMany
     {
         return $this->hasMany(AnnouncementAudience::class);
     }
 
+    /**
+     * @return HasMany<Notification, $this>
+     */
     public function notifications(): HasMany
     {
         return $this->hasMany(Notification::class);

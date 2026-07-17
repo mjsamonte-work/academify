@@ -20,11 +20,17 @@ class AnnouncementAudience extends Model
 
     public const TYPE_SECTION = 'section';
 
+    /**
+     * @return BelongsTo<Announcement, $this>
+     */
     public function announcement(): BelongsTo
     {
         return $this->belongsTo(Announcement::class);
     }
 
+    /**
+     * @return BelongsTo<Section, $this>
+     */
     public function section(): BelongsTo
     {
         return $this->belongsTo(Section::class);

@@ -8,9 +8,11 @@ use App\Models\Assessment;
 use App\Models\ClassSchedule;
 use App\Models\Enrollment;
 use App\Models\GradingPeriod;
+use App\Models\Student;
 use App\Models\StudentGrade;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 class GradeController extends Controller
@@ -100,7 +102,10 @@ class GradeController extends Controller
         abort_unless(request()->user()?->teacher?->id === $classSchedule->teacher_id, 403);
     }
 
-    private function studentsForAssessment(Assessment $assessment)
+    /**
+     * @return Collection<int, Student>
+     */
+    private function studentsForAssessment(Assessment $assessment): Collection
     {
         return Enrollment::query()
             ->with('student')
