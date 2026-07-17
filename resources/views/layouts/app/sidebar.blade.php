@@ -145,6 +145,21 @@
                         </flux:sidebar.item>
                     </flux:sidebar.group>
                 @endcan
+
+                @if(auth()->user()->can('audit_logs.view') || auth()->user()->can('settings.view'))
+                    <flux:sidebar.group :heading="__('Administration')" class="grid">
+                        @can('audit_logs.view')
+                            <flux:sidebar.item icon="layout-grid" :href="route('administration.audit-logs.index')" :current="request()->routeIs('administration.audit-logs.*')" wire:navigate>
+                                {{ __('Audit Logs') }}
+                            </flux:sidebar.item>
+                        @endcan
+                        @can('settings.view')
+                            <flux:sidebar.item icon="cog" :href="route('administration.settings.edit')" :current="request()->routeIs('administration.settings.*')" wire:navigate>
+                                {{ __('Settings') }}
+                            </flux:sidebar.item>
+                        @endcan
+                    </flux:sidebar.group>
+                @endif
             </flux:sidebar.nav>
 
             <flux:spacer />

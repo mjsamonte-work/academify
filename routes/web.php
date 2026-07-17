@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Academic\AcademicSetupController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Administration\AuditLogController;
+use App\Http\Controllers\Administration\SettingController;
 use App\Http\Controllers\Announcements\AnnouncementController;
 use App\Http\Controllers\Announcements\NoticeController;
 use App\Http\Controllers\Attendance\AttendanceSessionController;
@@ -148,6 +150,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/', [ReportController::class, 'index'])->name('index');
             Route::get('{report}/export/{format}', [ReportController::class, 'export'])->name('export');
             Route::get('{report}', [ReportController::class, 'show'])->name('show');
+        });
+
+    Route::prefix('administration')
+        ->name('administration.')
+        ->group(function () {
+            Route::get('audit-logs', [AuditLogController::class, 'index'])
+                ->middleware('permission:audit_logs.view')
+                ->name('audit-logs.index');
+            Route::get('audit-logs/{activityLog}', [AuditLogController::class, 'show'])
+                ->middleware('permission:audit_logs.view')
+                ->name('audit-logs.show');
+            Route::get('settings', [SettingController::class, 'edit'])
+                ->middleware('permission:settings.view')
+                ->name('settings.edit');
+            Route::put('settings', [SettingController::class, 'update'])
+                ->middleware('permission:settings.update')
+                ->name('settings.update');
         });
 
     Route::prefix('notices')
