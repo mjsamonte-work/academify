@@ -37,6 +37,14 @@ class SchoolYear extends Model
     }
 
     /**
+     * @return HasMany<Enrollment, $this>
+     */
+    public function enrollments(): HasMany
+    {
+        return $this->hasMany(Enrollment::class);
+    }
+
+    /**
      * @return array<string, string>
      */
     protected function casts(): array

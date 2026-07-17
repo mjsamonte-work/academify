@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Academic\AcademicSetupController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Enrollment\EnrollmentController;
 use App\Http\Controllers\Records\GuardianController;
 use App\Http\Controllers\Records\StudentController;
 use App\Http\Controllers\Records\StudentGuardianController;
@@ -66,6 +67,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('teacher/profile', [TeacherProfileController::class, 'show'])
         ->middleware('permission:teachers.view_own')
         ->name('teacher.profile');
+
+    Route::prefix('enrollment')->name('enrollment.')->group(function () {
+        Route::resource('enrollments', EnrollmentController::class)
+            ->except(['destroy'])
+            ->middleware('permission:enrollments.view');
+    });
 });
 
 require __DIR__.'/settings.php';
