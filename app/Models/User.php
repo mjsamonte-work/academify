@@ -88,6 +88,14 @@ class User extends Authenticatable implements PasskeyUser
     }
 
     /**
+     * @return HasMany<StudentGrade, $this>
+     */
+    public function submittedStudentGrades(): HasMany
+    {
+        return $this->hasMany(StudentGrade::class, 'submitted_by');
+    }
+
+    /**
      * Get the user's initials
      */
     public function initials(): string

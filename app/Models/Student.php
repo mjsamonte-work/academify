@@ -113,6 +113,14 @@ class Student extends Model
     }
 
     /**
+     * @return HasMany<StudentGrade, $this>
+     */
+    public function studentGrades(): HasMany
+    {
+        return $this->hasMany(StudentGrade::class);
+    }
+
+    /**
      * @return array<string, string>
      */
     protected function casts(): array

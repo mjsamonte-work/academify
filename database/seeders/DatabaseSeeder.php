@@ -2,16 +2,19 @@
 
 namespace Database\Seeders;
 
+use App\Models\Assessment;
 use App\Models\AttendanceRecord;
 use App\Models\AttendanceSession;
 use App\Models\Classroom;
 use App\Models\ClassSchedule;
 use App\Models\Enrollment;
 use App\Models\GradeLevel;
+use App\Models\GradingPeriod;
 use App\Models\Guardian;
 use App\Models\SchoolYear;
 use App\Models\Section;
 use App\Models\Student;
+use App\Models\StudentGrade;
 use App\Models\Subject;
 use App\Models\Teacher as TeacherProfile;
 use App\Models\Term;
@@ -73,6 +76,12 @@ class DatabaseSeeder extends Seeder
             'attendance.update',
             'attendance.submit',
             'attendance.view_own',
+            'grades.view',
+            'grades.create',
+            'grades.update',
+            'grades.submit',
+            'grades.publish',
+            'grades.view_own',
         ])->mapWithKeys(fn (string $permission) => [
             $permission => Permission::firstOrCreate([
                 'name' => $permission,
@@ -85,7 +94,7 @@ class DatabaseSeeder extends Seeder
         $student = Role::firstOrCreate(['name' => 'Student', 'guard_name' => 'web']);
         $guardian = Role::firstOrCreate(['name' => 'Parent/Guardian', 'guard_name' => 'web']);
 
-        $administrator->syncPermissions($permissions->except(['teachers.view_own', 'schedules.view_own', 'attendance.view_own'])->values());
+        $administrator->syncPermissions($permissions->except(['teachers.view_own', 'schedules.view_own', 'attendance.view_own', 'grades.view_own'])->values());
         $teacher->syncPermissions([
             $permissions['dashboard.view'],
             $permissions['teachers.view_own'],
@@ -94,6 +103,10 @@ class DatabaseSeeder extends Seeder
             $permissions['attendance.create'],
             $permissions['attendance.update'],
             $permissions['attendance.submit'],
+            $permissions['grades.view_own'],
+            $permissions['grades.create'],
+            $permissions['grades.update'],
+            $permissions['grades.submit'],
         ]);
         $student->syncPermissions([$permissions['dashboard.view']]);
         $guardian->syncPermissions([$permissions['dashboard.view']]);
@@ -129,6 +142,11 @@ class DatabaseSeeder extends Seeder
             $permissions['attendance.create'],
             $permissions['attendance.update'],
             $permissions['attendance.submit'],
+            $permissions['grades.view'],
+            $permissions['grades.create'],
+            $permissions['grades.update'],
+            $permissions['grades.submit'],
+            $permissions['grades.publish'],
         ]);
 
         $this->seedUser(
@@ -165,6 +183,7 @@ class DatabaseSeeder extends Seeder
         $this->seedEnrollmentRecords();
         $this->seedScheduleRecords();
         $this->seedAttendanceRecords();
+        $this->seedGradeRecords();
     }
 
     private function seedUser(string $name, string $email, string $jobTitle, Role $role): void
@@ -414,24 +433,76 @@ class DatabaseSeeder extends Seeder
             return;
         }
 
-        $session = AttendanceSession::firstOrCreate(
-            [
+        $session = AttendanceSession::query()
+            ->where('class_schedule_id', $classSchedule->id)
+            ->whereDate('attendance_date', '2026-06-08')
+            ->first();
+
+        if (! $session) {
+            $session = AttendanceSession::create([
                 'class_schedule_id' => $classSchedule->id,
                 'attendance_date' => '2026-06-08',
-            ],
-            [
                 'status' => AttendanceSession::STATUS_SUBMITTED,
                 'submitted_by' => $teacherUser->id,
                 'submitted_at' => now(),
                 'notes' => 'Seeded attendance session for local development.',
-            ],
-        );
+            ]);
+        }
 
         $session->records()->updateOrCreate(
             ['student_id' => $student->id],
             [
                 'status' => AttendanceRecord::STATUS_PRESENT,
                 'notes' => null,
+            ],
+        );
+    }
+
+    private function seedGradeRecords(): void
+    {
+        $schoolYear = SchoolYear::where('name', '2026-2027')->first();
+        $classSchedule = ClassSchedule::query()->first();
+        $student = Student::where('student_number', 'STU-0001')->first();
+        $teacherUser = User::where('email', 'teacher@academify.local')->first();
+
+        if (! $schoolYear || ! $classSchedule || ! $student || ! $teacherUser) {
+            return;
+        }
+
+        $period = GradingPeriod::firstOrCreate(
+            ['school_year_id' => $schoolYear->id, 'name' => 'First Quarter'],
+            [
+                'starts_at' => '2026-06-01',
+                'ends_at' => '2026-08-31',
+                'sort_order' => 1,
+                'status' => GradingPeriod::STATUS_ACTIVE,
+            ],
+        );
+
+        $assessment = Assessment::firstOrCreate(
+            [
+                'class_schedule_id' => $classSchedule->id,
+                'grading_period_id' => $period->id,
+                'title' => 'Quiz 1',
+            ],
+            [
+                'assessment_type' => 'quiz',
+                'max_score' => 100,
+                'weight' => 10,
+                'due_date' => '2026-06-15',
+                'status' => Assessment::STATUS_DRAFT,
+                'notes' => 'Seeded assessment for local development.',
+            ],
+        );
+
+        $assessment->studentGrades()->updateOrCreate(
+            ['student_id' => $student->id],
+            [
+                'score' => 95,
+                'remarks' => 'Seeded grade for local development.',
+                'status' => StudentGrade::STATUS_SUBMITTED,
+                'submitted_by' => $teacherUser->id,
+                'submitted_at' => now(),
             ],
         );
     }
