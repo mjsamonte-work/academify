@@ -80,6 +80,14 @@ class User extends Authenticatable implements PasskeyUser
     }
 
     /**
+     * @return HasMany<AttendanceSession, $this>
+     */
+    public function submittedAttendanceSessions(): HasMany
+    {
+        return $this->hasMany(AttendanceSession::class, 'submitted_by');
+    }
+
+    /**
      * Get the user's initials
      */
     public function initials(): string

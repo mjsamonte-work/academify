@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\AttendanceRecord;
+use App\Models\AttendanceSession;
 use App\Models\Classroom;
 use App\Models\ClassSchedule;
 use App\Models\Enrollment;
@@ -66,6 +68,11 @@ class DatabaseSeeder extends Seeder
             'schedules.update',
             'schedules.deactivate',
             'schedules.view_own',
+            'attendance.view',
+            'attendance.create',
+            'attendance.update',
+            'attendance.submit',
+            'attendance.view_own',
         ])->mapWithKeys(fn (string $permission) => [
             $permission => Permission::firstOrCreate([
                 'name' => $permission,
@@ -78,11 +85,15 @@ class DatabaseSeeder extends Seeder
         $student = Role::firstOrCreate(['name' => 'Student', 'guard_name' => 'web']);
         $guardian = Role::firstOrCreate(['name' => 'Parent/Guardian', 'guard_name' => 'web']);
 
-        $administrator->syncPermissions($permissions->except(['teachers.view_own', 'schedules.view_own'])->values());
+        $administrator->syncPermissions($permissions->except(['teachers.view_own', 'schedules.view_own', 'attendance.view_own'])->values());
         $teacher->syncPermissions([
             $permissions['dashboard.view'],
             $permissions['teachers.view_own'],
             $permissions['schedules.view_own'],
+            $permissions['attendance.view_own'],
+            $permissions['attendance.create'],
+            $permissions['attendance.update'],
+            $permissions['attendance.submit'],
         ]);
         $student->syncPermissions([$permissions['dashboard.view']]);
         $guardian->syncPermissions([$permissions['dashboard.view']]);
@@ -114,6 +125,10 @@ class DatabaseSeeder extends Seeder
             $permissions['schedules.create'],
             $permissions['schedules.update'],
             $permissions['schedules.deactivate'],
+            $permissions['attendance.view'],
+            $permissions['attendance.create'],
+            $permissions['attendance.update'],
+            $permissions['attendance.submit'],
         ]);
 
         $this->seedUser(
@@ -149,6 +164,7 @@ class DatabaseSeeder extends Seeder
         $this->seedTeacherRecords();
         $this->seedEnrollmentRecords();
         $this->seedScheduleRecords();
+        $this->seedAttendanceRecords();
     }
 
     private function seedUser(string $name, string $email, string $jobTitle, Role $role): void
@@ -381,6 +397,41 @@ class DatabaseSeeder extends Seeder
                 'classroom_id' => $classroom?->id,
                 'status' => ClassSchedule::STATUS_ACTIVE,
                 'notes' => 'Seeded class schedule for local development.',
+            ],
+        );
+    }
+
+    private function seedAttendanceRecords(): void
+    {
+        $classSchedule = ClassSchedule::query()
+            ->where('day_of_week', ClassSchedule::DAY_MONDAY)
+            ->where('starts_at', '08:00')
+            ->first();
+        $teacherUser = User::where('email', 'teacher@academify.local')->first();
+        $student = Student::where('student_number', 'STU-0001')->first();
+
+        if (! $classSchedule || ! $teacherUser || ! $student) {
+            return;
+        }
+
+        $session = AttendanceSession::firstOrCreate(
+            [
+                'class_schedule_id' => $classSchedule->id,
+                'attendance_date' => '2026-06-08',
+            ],
+            [
+                'status' => AttendanceSession::STATUS_SUBMITTED,
+                'submitted_by' => $teacherUser->id,
+                'submitted_at' => now(),
+                'notes' => 'Seeded attendance session for local development.',
+            ],
+        );
+
+        $session->records()->updateOrCreate(
+            ['student_id' => $student->id],
+            [
+                'status' => AttendanceRecord::STATUS_PRESENT,
+                'notes' => null,
             ],
         );
     }
